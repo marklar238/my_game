@@ -7,15 +7,16 @@ local BOTTOM_H  = 200    -- bottom bar height
 local WEAP_W    = 240    -- weapons panel width inside bottom bar
 
 function Layout.compute(w, h)
-  -- Place Abilities panel in the **bottom half** of the right corner (above the bottom bar)
+  -- Place Abilities panel in the **bottom half** of the right edge, **flush with the bottom bar**
 local usable_h = h - BOTTOM_H
 local sidebarRight = {
   x = w - RIGHT_W - PADDING,
-  y = math.floor(usable_h / 2) + PADDING,
+  y = math.floor(usable_h / 2),
   w = RIGHT_W,
-  h = math.floor(usable_h / 2) - 2 * PADDING
+  h = math.floor(usable_h / 2)
 }
-  local bottomBar    = {x = 0, y = h - BOTTOM_H, w = w, h = BOTTOM_H}
+  -- Bottom bar stops before the Abilities sidebar
+local bottomBar    = {x = 0, y = h - BOTTOM_H, w = sidebarRight.x, h = BOTTOM_H}
 
   local weaponsPanel = {
     x = PADDING,
@@ -27,7 +28,7 @@ local sidebarRight = {
   local cardsArea = {
     x = weaponsPanel.x + weaponsPanel.w + PADDING,
     y = bottomBar.y + PADDING,
-    w = w - (weaponsPanel.x + weaponsPanel.w + 2 * PADDING),
+    w = bottomBar.w - (weaponsPanel.x + weaponsPanel.w + 2 * PADDING),
     h = bottomBar.h - 2 * PADDING
   }
 

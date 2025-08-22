@@ -52,15 +52,16 @@ local BOTTOM_H  = 200    -- bottom bar height
 local WEAP_W    = 240    -- weapons panel width inside bottom bar
 
 function Layout.compute(w, h)
-  -- Place Abilities panel in the **bottom half** of the right corner (above the bottom bar)
+  -- Place Abilities panel in the **bottom half** of the right edge, **flush with the bottom bar**
 local usable_h = h - BOTTOM_H
 local sidebarRight = {
   x = w - RIGHT_W - PADDING,
-  y = math.floor(usable_h / 2) + PADDING,
+  y = math.floor(usable_h / 2),
   w = RIGHT_W,
-  h = math.floor(usable_h / 2) - 2 * PADDING
+  h = math.floor(usable_h / 2)
 }
-  local bottomBar    = {x = 0, y = h - BOTTOM_H, w = w, h = BOTTOM_H}
+  -- Bottom bar stops before the Abilities sidebar
+local bottomBar    = {x = 0, y = h - BOTTOM_H, w = sidebarRight.x, h = BOTTOM_H}
 
   local weaponsPanel = {
     x = PADDING,
@@ -72,7 +73,7 @@ local sidebarRight = {
   local cardsArea = {
     x = weaponsPanel.x + weaponsPanel.w + PADDING,
     y = bottomBar.y + PADDING,
-    w = w - (weaponsPanel.x + weaponsPanel.w + 2 * PADDING),
+    w = bottomBar.w - (weaponsPanel.x + weaponsPanel.w + 2 * PADDING),
     h = bottomBar.h - 2 * PADDING
   }
 
@@ -230,7 +231,13 @@ local fontSmall, fontMedium
 
 -- Fake data for UI placeholders
 local cards = {}
-local abilities = {"Cleave", "Dash", "Taunt", "Fireball", "Heal"}
+local abilities = {
+  { name = "Cleave" },
+  { name = "Dash" },
+  { name = "Taunt" },
+  { name = "Fireball" },
+  { name = "Heal" }
+}
 local weapons = {
   { name = "Longsword",  slot = "Main Hand" },
   { name = "Kite Shield", slot = "Off Hand" }
@@ -371,9 +378,25 @@ local function draw_abilities(rect)
   local y = rect.y + pad + 26
   local w = rect.w - 2*pad
 
-  for i, name in ipairs(abilities) do
+  for i, ability in ipairs(abilities) do
     local ry = y + (i-1) * (slot_h + gap)
     if ry + slot_h > rect.y + rect.h - pad then break end
+    local r = { x = x, y = ry, w = w, h = slot_h }
+    local isSel = (selected.ability == i)
+
+    love.graphics.setColor(isSel and 0.22 or 0.16, 0.17, isSel and 0.28 or 0.2, 0.9)
+    love.graphics.rectangle("fill", r.x, r.y, r.w, r.h, 10, 10)
+    love.graphics.setColor(0.5, 0.55, 0.65, 0.8)
+    love.graphics.setLineWidth(isSel and 3 or 2)
+    love.graphics.rectangle("line", r.x, r.y, r.w, r.h, 10, 10)
+
+    love.graphics.setFont(fontSmall)
+    love.graphics.setColor(0.95, 0.98, 1, 1)
+    love.graphics.print(ability.name or tostring(ability), r.x + 12, r.y + 20)
+
+    abilities[i].rect = r -- store for clicks
+  end
+end
     local r = { x = x, y = ry, w = w, h = slot_h }
     local isSel = (selected.ability == i)
 
@@ -472,7 +495,7 @@ function love.mousepressed(x, y, button)
   for i = 1, #abilities do
     if abilities[i].rect and pointInRect(x, y, abilities[i].rect) then
       selected.ability = (selected.ability == i) and nil or i
-      print("Selected ability:", abilities[i])
+      print("Selected ability:", abilities[i].name)
       return
     end
   end

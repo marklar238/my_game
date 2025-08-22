@@ -6,7 +6,13 @@ local fontSmall, fontMedium
 
 -- Fake data for UI placeholders
 local cards = {}
-local abilities = {"Cleave", "Dash", "Taunt", "Fireball", "Heal"}
+local abilities = {
+  { name = "Cleave" },
+  { name = "Dash" },
+  { name = "Taunt" },
+  { name = "Fireball" },
+  { name = "Heal" }
+}
 local weapons = {
   { name = "Longsword",  slot = "Main Hand" },
   { name = "Kite Shield", slot = "Off Hand" }
@@ -51,7 +57,7 @@ function love.load()
   love.graphics.setBackgroundColor(0.10, 0.11, 0.12)
   fontSmall  = love.graphics.newFont(12)
   fontMedium = love.graphics.newFont(16)
-  init_cards(8)
+  init_cards(5)
 end
 
 function love.resize(w, h)
@@ -147,7 +153,7 @@ local function draw_abilities(rect)
   local y = rect.y + pad + 26
   local w = rect.w - 2*pad
 
-  for i, name in ipairs(abilities) do
+  for i, ability in ipairs(abilities) do
     local ry = y + (i-1) * (slot_h + gap)
     if ry + slot_h > rect.y + rect.h - pad then break end
     local r = { x = x, y = ry, w = w, h = slot_h }
@@ -161,9 +167,8 @@ local function draw_abilities(rect)
 
     love.graphics.setFont(fontSmall)
     love.graphics.setColor(0.95, 0.98, 1, 1)
-    love.graphics.print(name, r.x + 12, r.y + 20)
+    love.graphics.print(ability.name or tostring(ability), r.x + 12, r.y + 20)
 
-    abilities[i] = abilities[i] or {}
     abilities[i].rect = r -- store for clicks
   end
 end
@@ -248,7 +253,7 @@ function love.mousepressed(x, y, button)
   for i = 1, #abilities do
     if abilities[i].rect and pointInRect(x, y, abilities[i].rect) then
       selected.ability = (selected.ability == i) and nil or i
-      print("Selected ability:", abilities[i])
+      print("Selected ability:", abilities[i].name)
       return
     end
   end
