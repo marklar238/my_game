@@ -147,15 +147,25 @@ end
 local function draw_abilities(rect)
   draw_panel(rect, "Abilities")
   local pad = 12
-  local slot_h = 60
+  local title_h = 26
   local gap = 10
-  local x = rect.x + pad
-  local y = rect.y + pad + 26
-  local w = rect.w - 2*pad
 
-  for i, ability in ipairs(abilities) do
+  -- Inner content area
+  local x = rect.x + pad
+  local y = rect.y + pad + title_h
+  local w = rect.w - 2*pad
+  local h = rect.h - 2*pad - title_h
+
+  -- Fit up to 5 abilities without cutting off
+  local max_visible = 5
+  local visible = math.min(max_visible, #abilities)
+  local slot_h = math.floor((h - gap * (visible - 1)) / visible)
+  -- keep a pleasant size but ensure it fits
+  if slot_h > 60 then slot_h = 60 end
+
+  for i = 1, visible do
+    local ability = abilities[i]
     local ry = y + (i-1) * (slot_h + gap)
-    if ry + slot_h > rect.y + rect.h - pad then break end
     local r = { x = x, y = ry, w = w, h = slot_h }
     local isSel = (selected.ability == i)
 
@@ -167,7 +177,7 @@ local function draw_abilities(rect)
 
     love.graphics.setFont(fontSmall)
     love.graphics.setColor(0.95, 0.98, 1, 1)
-    love.graphics.print(ability.name or tostring(ability), r.x + 12, r.y + 20)
+    love.graphics.print(ability.name or tostring(ability), r.x + 12, r.y + math.max(8, slot_h/2 - 8))
 
     abilities[i].rect = r -- store for clicks
   end

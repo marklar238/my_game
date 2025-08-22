@@ -52,13 +52,12 @@ local BOTTOM_H  = 200    -- bottom bar height
 local WEAP_W    = 240    -- weapons panel width inside bottom bar
 
 function Layout.compute(w, h)
-  -- Place Abilities panel in the **bottom half** of the right edge, **flush with the bottom bar**
-local usable_h = h - BOTTOM_H
+  -- Abilities panel spans bottom half of full height (overlays bottom bar) and reaches window bottom
 local sidebarRight = {
   x = w - RIGHT_W - PADDING,
-  y = math.floor(usable_h / 2),
+  y = math.floor(h / 2),
   w = RIGHT_W,
-  h = math.floor(usable_h / 2)
+  h = h - math.floor(h / 2)
 }
   -- Bottom bar stops before the Abilities sidebar
 local bottomBar    = {x = 0, y = h - BOTTOM_H, w = sidebarRight.x, h = BOTTOM_H}
@@ -372,15 +371,41 @@ end
 local function draw_abilities(rect)
   draw_panel(rect, "Abilities")
   local pad = 12
-  local slot_h = 60
+  local title_h = 26
   local gap = 10
-  local x = rect.x + pad
-  local y = rect.y + pad + 26
-  local w = rect.w - 2*pad
 
-  for i, ability in ipairs(abilities) do
+  -- Inner content area
+  local x = rect.x + pad
+  local y = rect.y + pad + title_h
+  local w = rect.w - 2*pad
+  local h = rect.h - 2*pad - title_h
+
+  -- Fit up to 5 abilities without cutting off
+  local max_visible = 5
+  local visible = math.min(max_visible, #abilities)
+  local slot_h = math.floor((h - gap * (visible - 1)) / visible)
+  -- keep a pleasant size but ensure it fits
+  if slot_h > 60 then slot_h = 60 end
+
+  for i = 1, visible do
+    local ability = abilities[i]
     local ry = y + (i-1) * (slot_h + gap)
-    if ry + slot_h > rect.y + rect.h - pad then break end
+    local r = { x = x, y = ry, w = w, h = slot_h }
+    local isSel = (selected.ability == i)
+
+    love.graphics.setColor(isSel and 0.22 or 0.16, 0.17, isSel and 0.28 or 0.2, 0.9)
+    love.graphics.rectangle("fill", r.x, r.y, r.w, r.h, 10, 10)
+    love.graphics.setColor(0.5, 0.55, 0.65, 0.8)
+    love.graphics.setLineWidth(isSel and 3 or 2)
+    love.graphics.rectangle("line", r.x, r.y, r.w, r.h, 10, 10)
+
+    love.graphics.setFont(fontSmall)
+    love.graphics.setColor(0.95, 0.98, 1, 1)
+    love.graphics.print(ability.name or tostring(ability), r.x + 12, r.y + math.max(8, slot_h/2 - 8))
+
+    abilities[i].rect = r -- store for clicks
+  end
+end
     local r = { x = x, y = ry, w = w, h = slot_h }
     local isSel = (selected.ability == i)
 

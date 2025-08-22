@@ -7,13 +7,12 @@ local BOTTOM_H  = 200    -- bottom bar height
 local WEAP_W    = 240    -- weapons panel width inside bottom bar
 
 function Layout.compute(w, h)
-  -- Place Abilities panel in the **bottom half** of the right edge, **flush with the bottom bar**
-local usable_h = h - BOTTOM_H
+  -- Abilities panel spans bottom half of full height (overlays bottom bar) and reaches window bottom
 local sidebarRight = {
   x = w - RIGHT_W - PADDING,
-  y = math.floor(usable_h / 2),
+  y = math.floor(h / 2),
   w = RIGHT_W,
-  h = math.floor(usable_h / 2)
+  h = h - math.floor(h / 2)
 }
   -- Bottom bar stops before the Abilities sidebar
 local bottomBar    = {x = 0, y = h - BOTTOM_H, w = sidebarRight.x, h = BOTTOM_H}
