@@ -1,11 +1,9 @@
-local Input = {}
+local Input = { down = {} }
 
-function Input.update() end
+function Input.keypressed(k)  Input.down[k] = true  end
+function Input.keyreleased(k) Input.down[k] = false end
+function Input.isDown(k)      return Input.down[k]  end
 
-function Input.keypressed(key)
-  -- put one-shot actions here (jump, shoot)
-end
-
-function Input.keyreleased(key) end
-
+-- Optional: map hotkeys to actions later
+-- Input.bind = { ["1"]="ability1", ["2"]="ability2" }
 return Input

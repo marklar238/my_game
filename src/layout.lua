@@ -10,7 +10,7 @@ function Layout.compute(w, h)
   -- Abilities panel spans bottom half of full height (overlays bottom bar) and reaches window bottom
 local sidebarRight = {
   x = w - RIGHT_W - PADDING,
-  y = math.floor(h / 2),
+  y = math.floor(h / 2) - 16,
   w = RIGHT_W,
   h = h - math.floor(h / 2)
 }
