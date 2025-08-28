@@ -9,6 +9,8 @@ local UIWeapons   = require("src.ui.weapons")
 
 local layout -- computed each frame in case of resize
 local fontSmall, fontMedium
+local Sprite = require("src.gfx.sprite")   -- file at: src/gfx/sprite.lua
+
 
 -- Fake data for UI placeholders
 local cards = {}
@@ -51,7 +53,9 @@ function love.load()
 
   -- Entities
   Entities.reset()
-  playerId = Entities.spawn{ type = "player", q = 0, r = 0, name = "Hero" }
+  heroSprite = Sprite.new("assets/sprites/hero.png", 32, 32, 0.12)
+  playerId = Entities.spawn{ type = "player", q = 0, r = 0, name = "Hero", sprite = heroSprite }
+
   Entities.spawn{ type = "enemy", q =  2, r = 0 }
   Entities.spawn{ type = "enemy", q = -1, r = 1 }
 end
@@ -70,13 +74,19 @@ end
 
 local function draw_entity(e, area)
   local cx, cy = HexGrid.axial_to_screen(e.q, e.r, area)
-  love.graphics.setLineWidth(2)
-  if e.type == "player" then
-    love.graphics.setColor(UITheme.player)
+  if e.sprite then
+    e.sprite:draw(cx, cy)
   else
-    love.graphics.setColor(UITheme.enemy)
+    love.graphics.setColor(e.type == "player" and UITheme.player or UITheme.enemy)
+    love.graphics.circle("fill", cx, cy, HexGrid.size * 0.45)
   end
-  love.graphics.circle("fill", cx, cy, HexGrid.size * 0.45)
+end
+
+function love.update(dt)
+  for _, e in pairs(Entities.all()) do
+    if e and e.sprite then e.sprite:update(dt) end
+  end
+  Movement.update(dt, input)
 end
 
 function love.update(dt)
@@ -120,7 +130,7 @@ end
 function love.mousepressed(x, y, button)
   -- UI takes precedence over grid
   local hit
-  hit = UIWeapons.hit(x, y); if hit then selected.weapon = hit; return end
+  hit = UIWeapons.hit(x, y); if hit then selected.weapon = (selected.weapon == hit) and nil or hit; return end
   hit = UIHand.hit(x, y);     if hit then selected.card   = (selected.card == hit) and nil or hit; return end
   hit = UIAbilities.hit(x, y);if hit then selected.ability= (selected.ability == hit) and nil or hit; return end
 

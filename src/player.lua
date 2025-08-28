@@ -1,4 +1,7 @@
 local Player = {}
+local Movement = require("src.game.movement")
+Movement.setIdleAnimFrames(player, /*upFrame=*/2, /*downFrame=*/3, /*rate=*/0.35)
+
 Player.__index = Player
 
 function Player.new(x, y)

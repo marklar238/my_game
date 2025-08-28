@@ -1,4 +1,5 @@
 local Entities = { list = {}, by_cell = {} }
+local Sprite = require("src.gfx.sprite")
 
 local function key(q, r) return tostring(q) .. "|" .. tostring(r) end
 
@@ -7,11 +8,13 @@ function Entities.reset()
   Entities.by_cell = {}
 end
 
+
 function Entities.spawn(t)
   local e = {
     type = t.type or "enemy",
     q = t.q, r = t.r,
     name = t.name,
+    sprite = t.sprite or nil
   }
   e.id = #Entities.list + 1
   Entities.list[e.id] = e
